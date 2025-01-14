@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "item",
+  "key": {
+    "A": {
+      "item": "ae2:spatial_anchor"
+    },
+    "N": {
+      "item": "minecraft:netherite_block"
+    },
+    "M": {
+      "item": "ae2:cell_component_256k"
+    },
+    "S": {
+      "item": "minecraft:nether_star"
+    }
+  },
+  "pattern": [
+    "SNS",
+    "MAM",
+    "SNS"
+  ],
+  "result": {
+    "item": "infinitestoragecell:infinite_cell_component"
+  }
+}

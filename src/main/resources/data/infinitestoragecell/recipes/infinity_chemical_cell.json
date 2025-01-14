@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": {
+    "item": "infinitestoragecell:infinite_cell_component"
+  },
+  "base": {
+    "item": "appmek:chemical_storage_cell_256k"
+  },
+  "result": {
+    "item": "infinitestoragecell:infinity_chemical_cell"
+  },
+  "template": {
+    "item": "ae2:fluix_upgrade_smithing_template"
+  }
+}

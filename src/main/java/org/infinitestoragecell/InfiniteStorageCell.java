@@ -36,6 +36,7 @@ public class InfiniteStorageCell {
 
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
 
+    public static final RegistryObject<Item> INFINITE_CELL_COMPONENT = ITEMS.register("infinite_cell_component", () -> new Item(new Item.Properties().fireResistant()));
     public static final RegistryObject<Item> INFINITY_ITEM_CELL = ITEMS.register("infinity_item_cell", () -> new InfinityCellItem(AEKeyType.items()));
     public static final RegistryObject<Item> INFINITY_FLUID_CELL = ITEMS.register("infinity_fluid_cell", () -> new InfinityCellItem(AEKeyType.fluids()));
     public static final RegistryObject<Item> INFINITY_CHEMICAL_CELL;
@@ -64,6 +65,7 @@ public class InfiniteStorageCell {
 
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() == AECreativeTabIds.MAIN) {
+            event.accept(INFINITE_CELL_COMPONENT);
             event.accept(INFINITY_ITEM_CELL);
             event.accept(INFINITY_FLUID_CELL);
             if (INFINITY_CHEMICAL_CELL!=null) {
