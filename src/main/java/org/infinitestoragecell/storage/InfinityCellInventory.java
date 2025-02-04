@@ -15,6 +15,7 @@ import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
+import org.infinitestoragecell.Config;
 import org.infinitestoragecell.InfinityCellItem;
 
 import java.text.DecimalFormat;
@@ -60,7 +61,7 @@ public class InfinityCellInventory implements StorageCell {
 
     @Override
     public double getIdleDrain() {
-        return Integer.MAX_VALUE;
+        return Config.idleDrain;
     }
 
     @Override

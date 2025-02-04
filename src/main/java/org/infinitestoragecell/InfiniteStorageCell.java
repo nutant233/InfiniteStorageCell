@@ -20,7 +20,9 @@ import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
@@ -54,8 +56,9 @@ public class InfiniteStorageCell {
         modEventBus.addListener(this::commonSetup);
         ITEMS.register(modEventBus);
         modEventBus.addListener(this::addCreative);
-        MinecraftForge.EVENT_BUS.register(this);
+        modEventBus.register(Config.class);
         MinecraftForge.EVENT_BUS.addListener(InfiniteStorageCell::onLevelLoad);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
