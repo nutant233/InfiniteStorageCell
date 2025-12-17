@@ -1,0 +1,10 @@
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
+[[mods]]
+modId="infinitestoragecell"
+issueTrackerURL="https://github.com/nutant233/InfiniteStorageCell/issues"
+displayURL="https://github.com/nutant233/InfiniteStorageCell"
+version="${mod_version}"
+displayName="${mod_name}"
+authors="${mod_authors}"

@@ -1,98 +1,84 @@
 package org.infinitestoragecell;
 
 import appeng.api.ids.AECreativeTabIds;
-import appeng.api.implementations.blockentities.IChestOrDrive;
 import appeng.api.stacks.AEKeyType;
 import appeng.api.storage.StorageCells;
-import appeng.api.storage.cells.ICellGuiHandler;
-import appeng.api.storage.cells.ICellHandler;
-import appeng.menu.MenuOpener;
-import appeng.menu.locator.MenuLocators;
-import appeng.menu.me.common.MEStorageMenu;
-import me.ramidzkh.mekae2.ae2.MekanismKeyType;
+import com.mojang.serialization.Codec;
+import net.minecraft.core.UUIDUtil;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
-import net.minecraftforge.event.level.LevelEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.saveddata.SavedData;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.event.level.LevelEvent;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import org.infinitestoragecell.storage.InfinityCellHandler;
 import org.infinitestoragecell.storage.InfinityCellSavaedData;
+
+import java.util.UUID;
+import java.util.function.Consumer;
 
 @Mod(InfiniteStorageCell.MODID)
 public class InfiniteStorageCell {
 
     public static final String MODID = "infinitestoragecell";
 
-    public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
+    public static final DeferredRegister<DataComponentType<?>> DR = DeferredRegister
+            .create(Registries.DATA_COMPONENT_TYPE, MODID);
 
-    public static final RegistryObject<Item> INFINITE_CELL_COMPONENT = ITEMS.register("infinite_cell_component", () -> new Item(new Item.Properties().fireResistant()));
-    public static final RegistryObject<Item> INFINITY_ITEM_CELL = ITEMS.register("infinity_item_cell", () -> new InfinityCellItem(AEKeyType.items()));
-    public static final RegistryObject<Item> INFINITY_FLUID_CELL = ITEMS.register("infinity_fluid_cell", () -> new InfinityCellItem(AEKeyType.fluids()));
-    public static final RegistryObject<Item> INFINITY_CHEMICAL_CELL;
+    public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(BuiltInRegistries.ITEM, MODID);
 
-    static {
-       if (ModList.get().isLoaded("appmek")) {
-           INFINITY_CHEMICAL_CELL = ITEMS.register("infinity_chemical_cell", () -> new InfinityCellItem(MekanismKeyType.TYPE));
-       } else {
-           INFINITY_CHEMICAL_CELL = null;
-       }
-    }
+    public static final DeferredHolder<Item, Item> INFINITE_CELL_COMPONENT = ITEMS.register("infinite_cell_component", () -> new Item(new Item.Properties().fireResistant()));
+    public static final DeferredHolder<Item, Item> INFINITY_ITEM_CELL = ITEMS.register("infinity_item_cell", () -> new InfinityCellItem(AEKeyType.items()));
+    public static final DeferredHolder<Item, Item> INFINITY_FLUID_CELL = ITEMS.register("infinity_fluid_cell", () -> new InfinityCellItem(AEKeyType.fluids()));
+    public static final DeferredHolder<Item, Item> INFINITY_GENERAL_CELL = ITEMS.register("infinity_general_cell", () -> new InfinityCellItem(null));
 
-    public InfiniteStorageCell() {
-        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+    public InfiniteStorageCell(IEventBus modEventBus) {
         modEventBus.addListener(this::commonSetup);
         ITEMS.register(modEventBus);
+        DR.register(modEventBus);
         modEventBus.addListener(this::addCreative);
-        modEventBus.register(Config.class);
-        MinecraftForge.EVENT_BUS.addListener(InfiniteStorageCell::onLevelLoad);
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        NeoForge.EVENT_BUS.addListener(InfiniteStorageCell::onLevelLoad);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
         StorageCells.addCellHandler(InfinityCellHandler.INSTANCE);
-        StorageCells.addCellGuiHandler(new InfinityCellGuiHandler());
     }
 
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() == AECreativeTabIds.MAIN) {
-            event.accept(INFINITE_CELL_COMPONENT);
-            event.accept(INFINITY_ITEM_CELL);
-            event.accept(INFINITY_FLUID_CELL);
-            if (INFINITY_CHEMICAL_CELL!=null) {
-                event.accept(INFINITY_CHEMICAL_CELL);
-            }
+            event.accept(INFINITE_CELL_COMPONENT.get());
+            event.accept(INFINITY_ITEM_CELL.get());
+            event.accept(INFINITY_FLUID_CELL.get());
+            event.accept(INFINITY_GENERAL_CELL.get());
         }
     }
+
+    private static final SavedData.Factory<InfinityCellSavaedData> FACTORY = new SavedData.Factory<>(InfinityCellSavaedData::new, InfinityCellSavaedData::new, null);
 
     private static void onLevelLoad(LevelEvent.Load event) {
         if (event.getLevel() instanceof ServerLevel serverLevel) {
-            InfinityCellSavaedData.INSTANCE = serverLevel.getDataStorage().computeIfAbsent(InfinityCellSavaedData::new, InfinityCellSavaedData::new, "infinite_storage_cell_data");
+            InfinityCellSavaedData.INSTANCE = serverLevel.getServer().getLevel(Level.OVERWORLD).getDataStorage().computeIfAbsent(FACTORY, "infinite_storage_cell_data");
         }
     }
 
-    private static class InfinityCellGuiHandler implements ICellGuiHandler {
+    public static final DataComponentType<UUID> UUID = registerDataComponentType("uuid", builder -> builder.persistent(UUIDUtil.CODEC).networkSynchronized(UUIDUtil.STREAM_CODEC));
+    public static final DataComponentType<Double> BYTE = registerDataComponentType("byte", builder -> builder.persistent(Codec.DOUBLE).networkSynchronized(ByteBufCodecs.DOUBLE));
 
-        @Override
-        public boolean isSpecializedFor(ItemStack cell) {
-            return cell.getItem() instanceof InfinityCellItem;
-        }
-
-        @Override
-        public void openChestGui(Player player, IChestOrDrive chest, ICellHandler cellHandler, ItemStack cell) {
-            MenuOpener.open(MEStorageMenu.TYPE, player, MenuLocators.forBlockEntity(((BlockEntity) chest)));
-        }
+    private static <T> DataComponentType<T> registerDataComponentType(String name, Consumer<DataComponentType.Builder<T>> customizer) {
+        var builder = DataComponentType.<T>builder();
+        customizer.accept(builder);
+        var componentType = builder.build();
+        DR.register(name, () -> componentType);
+        return componentType;
     }
 }

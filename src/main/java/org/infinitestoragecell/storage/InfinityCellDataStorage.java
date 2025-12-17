@@ -1,35 +1,40 @@
 package org.infinitestoragecell.storage;
 
+import appeng.api.stacks.GenericStack;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class InfinityCellDataStorage {
 
-    public static final InfinityCellDataStorage EMPTY = new InfinityCellDataStorage();
-
-    public ListTag keys;
-    public long[] amounts;
+    public List<GenericStack> keys;
 
     public InfinityCellDataStorage() {
-        this(new ListTag(), new long[0]);
+        this(new ArrayList<>());
     }
 
-    private InfinityCellDataStorage(ListTag keys, long[] amounts) {
+    private InfinityCellDataStorage(List<GenericStack> keys) {
         this.keys = keys;
-        this.amounts = amounts;
     }
 
-    public CompoundTag toNbt() {
-        CompoundTag nbt = new CompoundTag();
-        nbt.put("keys", keys);
-        nbt.putLongArray("amounts", amounts);
+    public Tag toNbt(HolderLookup.@NotNull Provider provider) {
+        var nbt = new ListTag();
+        keys.forEach(k -> {
+            nbt.add(GenericStack.writeTag(provider, k));
+        });
         return nbt;
     }
 
-    public static InfinityCellDataStorage fromNbt(CompoundTag nbt) {
-        ListTag stackKeys = nbt.getList("keys", Tag.TAG_COMPOUND);
-        long[] stackAmounts = nbt.getLongArray("amounts");
-        return new InfinityCellDataStorage(stackKeys, stackAmounts);
+    public static InfinityCellDataStorage fromNbt(HolderLookup.@NotNull Provider provider, ListTag nbt) {
+        var list = new ArrayList<GenericStack>();
+        nbt.forEach(k -> {
+            list.add(GenericStack.readTag(provider, (CompoundTag) k));
+        });
+        return new InfinityCellDataStorage(list);
     }
 }
